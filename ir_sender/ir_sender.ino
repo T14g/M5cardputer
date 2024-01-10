@@ -1,18 +1,11 @@
-#define DISABLE_CODE_FOR_RECEIVER  // Disables restarting receiver after each
-                                   // send. Saves 450 bytes program memory and
-                                   // 269 bytes RAM if receiving functions are
-                                   // not use
-
-
-// #define ENABLE_NEC2_REPEATS
-
+#define DISABLE_CODE_FOR_RECEIVER 
 #define SEND_PWM_BY_TIMER
 #define IR_TX_PIN 44
 
 #include "M5Cardputer.h"
 #include <IRremote.hpp>  // include the library
 
-bool enviar = true;
+int irCommand = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -29,27 +22,39 @@ void setup() {
 }
 
 void loop() {
-
+    int displayW = M5Cardputer.Display.width() / 2;
+    int displayH = M5Cardputer.Display.height() / 2;
 
     M5Cardputer.update();
+    M5Cardputer.Display.clear();
+
     if (M5Cardputer.Keyboard.isChange()) {
-        if (M5Cardputer.Keyboard.isKeyPressed('/')) {
-            M5Cardputer.Display.clear();
-            M5Cardputer.Display.drawString("Right Pressed",
-                                           M5Cardputer.Display.width() / 2,
-                                           M5Cardputer.Display.height() / 2);
-
-                                            IrSender.sendNEC(0xEF00 , 0x5 , 40700);
-   
-      // enviar = false;
-         delay(500);
-                                      
-
-
-        }else {
-           M5Cardputer.Display.clear();
-        }
+      if (M5Cardputer.Keyboard.isKeyPressed('1')) {
+        M5Cardputer.Display.drawString("LED 1",  displayW, displayH);
+        irCommand = 1;
+      } else if(M5Cardputer.Keyboard.isKeyPressed('2')) {
+        M5Cardputer.Display.drawString("LED 2",  displayW, displayH);
+        irCommand = 2;
+      }else if (M5Cardputer.Keyboard.isKeyPressed('3')) {
+        M5Cardputer.Display.drawString("TV",  displayW, displayH);
+        irCommand = 3;
+      }
     }
 
-    Serial.println("hello world");
+    if(irCommand == 1) {
+      IrSender.sendNEC(0xEF00, 0x5, 0);
+      irCommand = 0;
+      delay(500);
+    }else if(irCommand == 2) {
+      IrSender.sendNEC(0x0, 0x9, 0);
+      irCommand = 0;
+      delay(500);
+    }else if(irCommand == 3) {
+      IrSender.sendPanasonic(0x8, 0x3D, 0);
+      irCommand = 0;
+      delay(500);
+    }else {
+      M5Cardputer.Display.drawString("Press 1,2 or 3",  displayW, displayH);
+    }
+    delay(500);
 }
