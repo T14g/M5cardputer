@@ -4,10 +4,10 @@ int menuPosition = 0;
 int currentOption = 1;
 
 void drawMenuOptions() {
-    M5Cardputer.Display.drawString("Menu option1",0 ,0);
-    M5Cardputer.Display.drawString("Menu option2",0 ,22);
-    M5Cardputer.Display.drawString("Menu option3",0 ,42);
-    M5Cardputer.Display.drawString("Menu option4",0 ,62);
+    M5Cardputer.Display.drawString("IR",0 ,0);
+    M5Cardputer.Display.drawString("WIFI",0 ,22);
+    M5Cardputer.Display.drawString("BLUETOOTH",0 ,42);
+    M5Cardputer.Display.drawString("OTHERS",0 ,62);
 }
 
 void drawMenu() {

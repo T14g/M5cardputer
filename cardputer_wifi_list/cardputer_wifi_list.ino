@@ -8,7 +8,7 @@ int startIdx = 0;            // Start index for displaying networks
 void displayNetworks() {
   M5.Lcd.fillScreen(TFT_BLACK);
   M5.Lcd.setTextColor(TFT_WHITE);
-  M5.Lcd.setTextSize(1);
+  M5.Lcd.setTextSize(5);
 
   int numNetworks = WiFi.scanNetworks();
   // if (numNetworks == 0) {
@@ -23,12 +23,14 @@ void displayNetworks() {
   //   }
   // }
 
-  Serial.println(numNetworks);
+  // Serial.println(numNetworks);
+
+   M5.Lcd.println(numNetworks);
 }
 
 void setup() {
   M5.begin();
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   M5.Lcd.setRotation(1); // Set screen rotation if needed
   displayNetworks();
@@ -37,23 +39,23 @@ void setup() {
 void loop() {
   M5.update();
   int numNetworks = WiFi.scanNetworks();
-  // if (M5.BtnA.wasPressed()) {
-  //   selectedNetwork = max(0, selectedNetwork - 1);
-  //   if (selectedNetwork < startIdx) {
-  //     startIdx = selectedNetwork;
-  //   }
-  //   displayNetworks();
-  // }
+  if (M5.BtnA.wasPressed()) {
+    selectedNetwork = max(0, selectedNetwork - 1);
+    if (selectedNetwork < startIdx) {
+      startIdx = selectedNetwork;
+    }
+    displayNetworks();
+  }
 
-  // if (M5.BtnA.wasPressed()) {
-  //   int numNetworks = WiFi.scanNetworks();
-  //   if (numNetworks > 0) {
-  //     selectedNetwork = min(selectedNetwork + 1, numNetworks - 1);
-  //     if (selectedNetwork >= startIdx + MAX_NETWORKS) {
-  //       startIdx = selectedNetwork - MAX_NETWORKS + 1;
-  //     }
-  //     displayNetworks();
-  //   }
-  // }
+  if (M5.BtnA.wasPressed()) {
+    int numNetworks = WiFi.scanNetworks();
+    if (numNetworks > 0) {
+      selectedNetwork = min(selectedNetwork + 1, numNetworks - 1);
+      if (selectedNetwork >= startIdx + MAX_NETWORKS) {
+        startIdx = selectedNetwork - MAX_NETWORKS + 1;
+      }
+      displayNetworks();
+    }
+  }
   Serial.println(numNetworks);
 }

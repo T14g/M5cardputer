@@ -39,6 +39,22 @@ void loop() {
         M5Cardputer.Display.drawString("TV",  displayW, displayH);
         irCommand = 3;
       }
+      else if (M5Cardputer.Keyboard.isKeyPressed('a')) {
+        M5Cardputer.Display.drawString("M1",  displayW, displayH);
+        irCommand = 4;
+      }
+      else if (M5Cardputer.Keyboard.isKeyPressed('s')) {
+        M5Cardputer.Display.drawString("M2",  displayW, displayH);
+        irCommand = 5;
+      }
+      else if (M5Cardputer.Keyboard.isKeyPressed('d')) {
+        M5Cardputer.Display.drawString("M3",  displayW, displayH);
+        irCommand = 6;
+      }
+      else if (M5Cardputer.Keyboard.isKeyPressed('f')) {
+        M5Cardputer.Display.drawString("M4",  displayW, displayH);
+        irCommand = 7;
+      }
     }
 
     if(irCommand == 1) {
@@ -51,6 +67,22 @@ void loop() {
       delay(500);
     }else if(irCommand == 3) {
       IrSender.sendPanasonic(0x8, 0x3D, 0);
+      irCommand = 0;
+      delay(500);
+    }else if(irCommand == 4) {
+      IrSender.sendNEC(0x0, 0x10, 0);
+      irCommand = 0;
+      delay(500);
+    }else if(irCommand == 5) {
+      IrSender.sendNEC(0x0, 0x11, 0);
+      irCommand = 0;
+      delay(500);
+    }else if(irCommand == 6) {
+      IrSender.sendNEC(0x0, 0x12, 0);
+      irCommand = 0;
+      delay(500);
+    }else if(irCommand == 7) {
+      IrSender.sendNEC(0x0, 0x13, 0);
       irCommand = 0;
       delay(500);
     }else {
