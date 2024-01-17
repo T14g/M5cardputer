@@ -84,7 +84,8 @@ void drawMenuOptions() {
     M5Cardputer.Display.drawString("IR",0 ,0);
     M5Cardputer.Display.drawString("WIFI",0 ,22);
     M5Cardputer.Display.drawString("BLUETOOTH",0 ,42);
-    M5Cardputer.Display.drawString("OTHERS",0 ,62);
+    M5Cardputer.Display.drawString("Web Server",0 ,62);
+    M5Cardputer.Display.drawString("OTHERS",0 ,82);
 }
 
 void drawMenu() {
@@ -119,7 +120,7 @@ void loop() {
               drawMenu();
             }
           }else if (M5Cardputer.Keyboard.isKeyPressed('.')) {
-              if(currentOption < 4) {
+              if(currentOption < 5) {
               currentOption++;
               menuPosition += 22;
               drawMenu();
