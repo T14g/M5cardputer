@@ -3,7 +3,14 @@
 #define IR_TX_PIN 44
 
 #include "M5Cardputer.h"
+#include <WiFi.h>
+#include <ESPAsyncWebServer.h>
 #include <IRremote.hpp>  // include the library
+
+const char* ssid = "WIFI_SSID";
+const char* password = "WIFI_PW";
+
+AsyncWebServer server(80);
 
 int menuPosition = 0;
 int currentOption = 1;
@@ -94,6 +101,28 @@ void drawMenu() {
   drawMenuOptions();
 }
 
+void serverMode() {
+    M5Cardputer.Display.clear();
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(250);
+    }
+
+    if(WiFi.status() == WL_CONNECTED) {
+      M5Cardputer.Display.print("Server at:");
+      M5Cardputer.Display.print( WiFi.localIP());
+    }
+
+    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+      M5Cardputer.Display.print("Received a request!");
+      request->send(200, "text/plain", "Hello, world!");
+    });
+
+    // Start server
+    server.begin();
+    selectedMenu = false;
+}
+
 void setup() {
     auto cfg = M5.config();
     M5Cardputer.begin(cfg);
@@ -103,6 +132,7 @@ void setup() {
     M5Cardputer.Display.setTextColor(0xFFFF);
     IrSender.begin(DISABLE_LED_FEEDBACK);  // Start with IR_SEND_PIN as send pin
     IrSender.setSendPin(IR_TX_PIN);
+
     drawMenu();
 }
 
@@ -110,7 +140,9 @@ void loop() {
 
     if(currentOption == 1 && selectedMenu) {
       irSender();
-    }else {
+    }else if(currentOption == 4 && selectedMenu) {
+      serverMode();
+    } else {
       M5Cardputer.update();
       if (M5Cardputer.Keyboard.isChange()) {
           if (M5Cardputer.Keyboard.isKeyPressed(';')) {
@@ -127,11 +159,13 @@ void loop() {
               }
           }
           }else if (M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER)) {
-            M5Cardputer.Display.setRotation(1);
-            M5Cardputer.Display.setTextColor(GREEN);
-            M5Cardputer.Display.setTextDatum(middle_center);
-            M5Cardputer.Display.setTextFont(&fonts::Orbitron_Light_24);
-            M5Cardputer.Display.setTextSize(1);
+            if(currentOption == 1) {
+              M5Cardputer.Display.setRotation(1);
+              M5Cardputer.Display.setTextColor(GREEN);
+              M5Cardputer.Display.setTextDatum(middle_center);
+              M5Cardputer.Display.setTextFont(&fonts::Orbitron_Light_24);
+              M5Cardputer.Display.setTextSize(1);
+            }
             selectedMenu = true;
           }
     }
