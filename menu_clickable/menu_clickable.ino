@@ -118,6 +118,13 @@ void serverMode() {
       request->send(200, "text/plain", "Hello, world!");
     });
 
+    server.on("/test", HTTP_POST, [](AsyncWebServerRequest *request){
+      String message = request->arg("message");
+      M5Cardputer.Display.print( message);
+      request->send(200, "text/plain", "Post received");
+    });
+
+
     // Start server
     server.begin();
     selectedMenu = false;
