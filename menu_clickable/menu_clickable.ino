@@ -121,6 +121,7 @@ void serverMode() {
     server.on("/test", HTTP_POST, [](AsyncWebServerRequest *request){
       String message = request->arg("message");
       M5Cardputer.Display.print( message);
+      M5Cardputer.Speaker.tone(2000, 500);
       request->send(200, "text/plain", "Post received");
     });
 
