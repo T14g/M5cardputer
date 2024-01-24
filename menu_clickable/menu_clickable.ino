@@ -89,10 +89,20 @@ void irSender() {
 
 void drawMenuOptions() {
     M5Cardputer.Display.drawString("IR",0 ,0);
-    M5Cardputer.Display.drawString("WIFI",0 ,22);
+    M5Cardputer.Display.drawString("Ir menu 2",0 ,22);
     M5Cardputer.Display.drawString("BLUETOOTH",0 ,42);
     M5Cardputer.Display.drawString("Web Server",0 ,62);
     M5Cardputer.Display.drawString("OTHERS",0 ,82);
+}
+
+void drawIrMenu() {
+    M5Cardputer.update();
+    M5Cardputer.Display.clear();
+    M5Cardputer.Display.drawString("Led 1",0 ,0);
+    M5Cardputer.Display.drawString("Led 2",0 ,22);
+    M5Cardputer.Display.drawString("Galaxy projector",0 ,42);
+    M5Cardputer.Display.drawString("TV",0 ,62);
+    M5Cardputer.Display.drawString("Metronome",0 ,82);
 }
 
 void drawMenu() {
@@ -150,7 +160,10 @@ void loop() {
       irSender();
     }else if(currentOption == 4 && selectedMenu) {
       serverMode();
-    } else {
+    }else if(currentOption == 2 && selectedMenu) {
+      drawIrMenu();
+      selectedMenu = false;
+    }else {
       M5Cardputer.update();
       if (M5Cardputer.Keyboard.isChange()) {
           if (M5Cardputer.Keyboard.isKeyPressed(';')) {
