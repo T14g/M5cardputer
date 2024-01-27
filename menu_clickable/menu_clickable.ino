@@ -2,6 +2,25 @@
 #define SEND_PWM_BY_TIMER
 #define IR_TX_PIN 44
 
+#define HAS_SDCARD
+#define SD_CLK_PIN 40
+#define SD_MISO_PIN 39
+#define SD_MOSI_PIN 14
+#define SD_CS_PIN 12
+
+#if defined(HAS_SDCARD)
+#include <FS.h>
+#include <SD.h>
+#include <SPI.h>
+#endif
+
+bool sdcardMounted = false;
+
+#if defined(HAS_SDCARD)
+SPIClass* sdcardSPI = NULL;
+SemaphoreHandle_t sdcardSemaphore;
+#endif
+
 #include "M5Cardputer.h"
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
@@ -92,7 +111,7 @@ void drawMenuOptions() {
     M5Cardputer.Display.drawString("Ir menu 2",0 ,22);
     M5Cardputer.Display.drawString("BLUETOOTH",0 ,42);
     M5Cardputer.Display.drawString("Web Server",0 ,62);
-    M5Cardputer.Display.drawString("OTHERS",0 ,82);
+    M5Cardputer.Display.drawString("SD Card",0 ,82);
 }
 
 void drawIrMenu() {
@@ -103,6 +122,33 @@ void drawIrMenu() {
     M5Cardputer.Display.drawString("Galaxy projector",0 ,42);
     M5Cardputer.Display.drawString("TV",0 ,62);
     M5Cardputer.Display.drawString("Metronome",0 ,82);
+}
+
+void startSDcard() {
+  M5Cardputer.update();
+  M5Cardputer.Display.clear();
+
+  #if defined(HAS_SDCARD)
+  sdcardSemaphore = xSemaphoreCreateMutex();
+  sdcardSPI = new SPIClass(FSPI);
+  sdcardSPI->begin(SD_CLK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN);
+
+  delay(10);
+
+  if (!SD.begin(SD_CS_PIN, *sdcardSPI)) {
+    M5Cardputer.Display.print("Fail to load SD");
+
+  } else {
+    M5Cardputer.Display.print("SD loaded");
+    // sdcardMounted = true;
+  }
+#endif
+  
+  // while (!SD.begin()) {
+  //   M5Cardputer.Display.print("Fail to load SD");
+  // }
+
+  // M5Cardputer.Display.print("SD loaded");
 }
 
 void drawMenu() {
@@ -129,7 +175,7 @@ void serverMode() {
     });
 
     server.on("/test", HTTP_POST, [](AsyncWebServerRequest *request){
-      String message = request->arg("message");
+      String message = request->arg("Count");
       M5Cardputer.Display.print( message);
       M5Cardputer.Speaker.tone(2000, 500);
       request->send(200, "text/plain", "Post received");
@@ -162,6 +208,9 @@ void loop() {
       serverMode();
     }else if(currentOption == 2 && selectedMenu) {
       drawIrMenu();
+      selectedMenu = false;
+    }else if(currentOption == 5 && selectedMenu) {
+      startSDcard();
       selectedMenu = false;
     }else {
       M5Cardputer.update();
