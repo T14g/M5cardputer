@@ -143,12 +143,6 @@ void startSDcard() {
     // sdcardMounted = true;
   }
 #endif
-  
-  // while (!SD.begin()) {
-  //   M5Cardputer.Display.print("Fail to load SD");
-  // }
-
-  // M5Cardputer.Display.print("SD loaded");
 }
 
 void drawMenu() {
@@ -158,6 +152,8 @@ void drawMenu() {
 }
 
 void serverMode() {
+    startSDcard();
+
     M5Cardputer.Display.clear();
     WiFi.begin(ssid, password);
     while (WiFi.status() != WL_CONNECTED) {
@@ -168,10 +164,25 @@ void serverMode() {
       M5Cardputer.Display.print("Server at:");
       M5Cardputer.Display.print( WiFi.localIP());
     }
-
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-      M5Cardputer.Display.print("Received a request!");
-      request->send(200, "text/plain", "Hello, world!");
+      File file = SD.open("/html/index.html");
+      if (file) {
+        M5Cardputer.Display.print("Sending HTML File!");
+        request->send(SD, "/html/index.html", "text/html");
+        file.close();
+      }else{
+        M5Cardputer.Display.print("Error to show HTML file");
+      }
+    });
+
+    server.on("/dist/css/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request){
+      // Replace "your_css_file_path" with the actual path on your SD card
+      File file = SD.open("/html/dist/css/bootstrap.min.css");
+      if(file) {
+          request->send(SD, "/html/dist/css/bootstrap.min.css", "text/css");
+      }else{
+        M5Cardputer.Display.print("Error to show CSS file");
+      }
     });
 
     server.on("/test", HTTP_POST, [](AsyncWebServerRequest *request){
@@ -181,8 +192,9 @@ void serverMode() {
       request->send(200, "text/plain", "Post received");
     });
 
-
-    // Start server
+    // Enable CORS
+    DefaultHeaders::Instance().addHeader(F("Access-Control-Allow-Origin"), F("*"));
+    // server.addHeader("Access-Control-Allow-Origin", "*");
     server.begin();
     selectedMenu = false;
 }
