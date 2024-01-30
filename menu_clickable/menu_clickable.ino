@@ -185,6 +185,16 @@ void serverMode() {
       }
     });
 
+    server.on("/images/1.jpg", HTTP_GET, [](AsyncWebServerRequest *request){
+      // Replace "your_css_file_path" with the actual path on your SD card
+      File file = SD.open("/html/images/1.jpg");
+      if(file) {
+          request->send(SD, "/html/images/1.jpg", "image");
+      }else{
+        M5Cardputer.Display.print("Error to show Img file");
+      }
+    });
+
     server.on("/test", HTTP_POST, [](AsyncWebServerRequest *request){
       String message = request->arg("Count");
       M5Cardputer.Display.print( message);
