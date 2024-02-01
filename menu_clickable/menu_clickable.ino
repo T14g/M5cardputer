@@ -26,8 +26,8 @@ SemaphoreHandle_t sdcardSemaphore;
 #include <ESPAsyncWebServer.h>
 #include <IRremote.hpp>  // include the library
 
-const char* ssid = "WIFI_SSID";
-const char* password = "WIFI_PW";
+const char* ssid = "SSID";
+const char* password = "PW";
 
 AsyncWebServer server(80);
 
@@ -151,8 +151,26 @@ void drawMenu() {
   drawMenuOptions();
 }
 
+void createFileSD() {
+  // Open the file for writing
+  File file = SD.open("test.txt", FILE_WRITE);
+
+  // Check if the file opened successfully
+  if (file) {
+    // Write to the file
+    file.println("Hello, World!");
+
+    // Close the file
+    file.close();
+    Serial.println("File written successfully.");
+  } else {
+    Serial.println("Error opening the file.");
+  }
+}
+
 void serverMode() {
     startSDcard();
+    createFileSD();
 
     M5Cardputer.Display.clear();
     WiFi.begin(ssid, password);
