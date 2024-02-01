@@ -153,18 +153,21 @@ void drawMenu() {
 
 void createFileSD() {
   // Open the file for writing
-  File file = SD.open("test.txt", FILE_WRITE);
+    // Open the file for writing (create if it doesn't exist)
+  File file = SD.open("/test.txt", FILE_WRITE);
 
   // Check if the file opened successfully
   if (file) {
     // Write to the file
     file.println("Hello, World!");
+     M5Cardputer.Display.print("Creating file on SD");
 
     // Close the file
     file.close();
     Serial.println("File written successfully.");
   } else {
     Serial.println("Error opening the file.");
+    M5Cardputer.Display.print("FAil on create file on SD");
   }
 }
 
