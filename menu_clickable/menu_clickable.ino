@@ -24,7 +24,7 @@ SemaphoreHandle_t sdcardSemaphore;
 #include "M5Cardputer.h"
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
-#include <IRremote.hpp>  // include the library
+#include <IRremote.hpp>  
 
 const char* ssid = "SSID";
 const char* password = "PW";
@@ -152,9 +152,7 @@ void drawMenu() {
 }
 
 void createFileSD() {
-  // Open the file for writing
-    // Open the file for writing (create if it doesn't exist)
-  File file = SD.open("/test.txt", FILE_WRITE);
+  File file = SD.open("/test.txt", FILE_APPEND);
 
   // Check if the file opened successfully
   if (file) {
