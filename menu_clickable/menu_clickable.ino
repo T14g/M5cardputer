@@ -70,6 +70,14 @@ void irSender() {
         M5Cardputer.Display.drawString("M4",  displayW, displayH);
         irCommand = 7;
       }
+      else if (M5Cardputer.Keyboard.isKeyPressed(';')) {
+        M5Cardputer.Display.drawString("Rise bpm",  displayW, displayH);
+        irCommand = 8;
+      }
+      else if (M5Cardputer.Keyboard.isKeyPressed('.')) {
+        M5Cardputer.Display.drawString("Drop bpm",  displayW, displayH);
+        irCommand = 9;
+      }
     }
 
     if(irCommand == 1) {
@@ -98,6 +106,14 @@ void irSender() {
       delay(500);
     }else if(irCommand == 7) {
       IrSender.sendNEC(0x0, 0x13, 0);
+      irCommand = 0;
+      delay(500);
+    }else if(irCommand == 8) {
+      IrSender.sendNEC(0x0, 0x15, 0);
+      irCommand = 0;
+      delay(500);
+    }else if(irCommand == 9) {
+      IrSender.sendNEC(0x0, 0x17, 0);
       irCommand = 0;
       delay(500);
     }else {
