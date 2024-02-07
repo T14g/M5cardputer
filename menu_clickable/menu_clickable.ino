@@ -163,7 +163,7 @@ void startSDcard() {
 
 void drawMenu() {
   M5Cardputer.Display.clear();
-  M5Cardputer.Display.fillRect(0, menuPosition, 240, 22, 0x7E0); 
+  M5Cardputer.Display.fillRect(0, menuPosition - (currentOption + 1), 240, 22, 0x7E0); 
   drawMenuOptions();
 }
 
