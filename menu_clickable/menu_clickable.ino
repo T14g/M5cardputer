@@ -2,11 +2,12 @@
 #define SEND_PWM_BY_TIMER
 #define IR_TX_PIN 44
 
-#define HAS_SDCARD
+# For SD Card
 #define SD_CLK_PIN 40
 #define SD_MISO_PIN 39
 #define SD_MOSI_PIN 14
 #define SD_CS_PIN 12
+#define HAS_SDCARD
 
 #if defined(HAS_SDCARD)
 #include <FS.h>
@@ -153,10 +154,6 @@ void startSDcard() {
 
   if (!SD.begin(SD_CS_PIN, *sdcardSPI)) {
     M5Cardputer.Display.print("Fail to load SD");
-
-  } else {
-    M5Cardputer.Display.print("SD loaded");
-    // sdcardMounted = true;
   }
 #endif
 }
