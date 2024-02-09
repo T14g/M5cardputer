@@ -2,7 +2,6 @@
 #define SEND_PWM_BY_TIMER
 #define IR_TX_PIN 44
 
-# For SD Card
 #define SD_CLK_PIN 40
 #define SD_MISO_PIN 39
 #define SD_MOSI_PIN 14
@@ -32,9 +31,9 @@ const char* password = "PW";
 
 AsyncWebServer server(80);
 
-int menuPosition = 0;
-int currentOption = 1;
-int irCommand = 0;
+uint8_t  menuPosition = 0;
+uint8_t  currentOption = 1;
+uint8_t  irCommand = 0;
 bool selectedMenu = false;
 
 void irSender() {
