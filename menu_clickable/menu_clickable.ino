@@ -1,4 +1,4 @@
-#define DISABLE_CODE_FOR_RECEIVER 
+// #define DISABLE_CODE_FOR_RECEIVER 
 #define SEND_PWM_BY_TIMER
 #define IR_TX_PIN 44
 
@@ -181,6 +181,26 @@ void createFileSD() {
   }
 }
 
+void serveStaticFile(const char* urlPath, const char* filePath, const char* fileType) {
+      startSDcard();
+ 
+      // & permite que pegue as variáveis do escopo que está envolta e as use/modifique
+      server.on(urlPath, HTTP_GET, [&](AsyncWebServerRequest *request){
+      
+  
+      File file = SD.open(filePath);
+      if (file) {
+        M5Cardputer.Display.print("Sending File!");
+        request->send(SD, filePath, fileType);
+        file.close();
+      }else{
+        M5Cardputer.Display.print("Error to show file");
+      }
+      
+
+    });
+}
+
 void serverMode() {
     startSDcard();
     createFileSD();
@@ -195,36 +215,39 @@ void serverMode() {
       M5Cardputer.Display.print("Server at:");
       M5Cardputer.Display.print( WiFi.localIP());
     }
-    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-      File file = SD.open("/html/index.html");
-      if (file) {
-        M5Cardputer.Display.print("Sending HTML File!");
-        request->send(SD, "/html/index.html", "text/html");
-        file.close();
-      }else{
-        M5Cardputer.Display.print("Error to show HTML file");
-      }
-    });
+    // server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    //   File file = SD.open("/html-2/index.html");
+    //   if (file) {
+    //     M5Cardputer.Display.print("Sending HTML File!");
+    //     request->send(SD, "/html-2/index.html", "text/html");
+    //     file.close();
+    //   }else{
+    //     M5Cardputer.Display.print("Error to show HTML file");
+    //   }
+    // });
 
-    server.on("/dist/css/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request){
-      // Replace "your_css_file_path" with the actual path on your SD card
-      File file = SD.open("/html/dist/css/bootstrap.min.css");
-      if(file) {
-          request->send(SD, "/html/dist/css/bootstrap.min.css", "text/css");
-      }else{
-        M5Cardputer.Display.print("Error to show CSS file");
-      }
-    });
+    serveStaticFile("/", "/html-2/index.html", "text/html");
+    serveStaticFile("/dist/css/bootstrap.min.css", "/html-2/dist/css/bootstrap.min.css", "text/css");
+    serveStaticFile("/images/1.jpg", "/html-2/images/1.jpg", "image");
+    // server.on("/dist/css/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request){
+    //   // Replace "your_css_file_path" with the actual path on your SD card
+    //   File file = SD.open("/html-2/dist/css/bootstrap.min.css");
+    //   if(file) {
+    //       request->send(SD, "/html-2/dist/css/bootstrap.min.css", "text/css");
+    //   }else{
+    //     M5Cardputer.Display.print("Error to show CSS file");
+    //   }
+    // });
 
-    server.on("/images/1.jpg", HTTP_GET, [](AsyncWebServerRequest *request){
-      // Replace "your_css_file_path" with the actual path on your SD card
-      File file = SD.open("/html/images/1.jpg");
-      if(file) {
-          request->send(SD, "/html/images/1.jpg", "image");
-      }else{
-        M5Cardputer.Display.print("Error to show Img file");
-      }
-    });
+    // server.on("/images/1.jpg", HTTP_GET, [](AsyncWebServerRequest *request){
+    //   // Replace "your_css_file_path" with the actual path on your SD card
+    //   File file = SD.open("/html-2/images/1.jpg");
+    //   if(file) {
+    //       request->send(SD, "/html-2/images/1.jpg", "image");
+    //   }else{
+    //     M5Cardputer.Display.print("Error to show Img file");
+    //   }
+    // });
 
     server.on("/test", HTTP_POST, [](AsyncWebServerRequest *request){
       String message = request->arg("Count");
@@ -250,10 +273,10 @@ void serverMode() {
           M5Cardputer.Display.println(password);
         }
 
-        File file = SD.open("/html/logged.html");
+        File file = SD.open("/html-2/logged.html");
         if (file) {
           M5Cardputer.Display.print("Sending HTML File!");
-          request->send(SD, "/html/logged.html", "text/html");
+          request->send(SD, "/html-2/logged.html", "text/html");
           file.close();
         }else{
           M5Cardputer.Display.print("Error to show HTML file");
@@ -277,11 +300,22 @@ void setup() {
     M5Cardputer.Display.setTextColor(0xFFFF);
     IrSender.begin(DISABLE_LED_FEEDBACK);  // Start with IR_SEND_PIN as send pin
     IrSender.setSendPin(IR_TX_PIN);
+    IrReceiver.begin(1, ENABLE_LED_FEEDBACK);
 
     drawMenu();
 }
 
 void loop() {
+
+    if (IrReceiver.decode()) {
+      IrReceiver.resume();
+      int displayW = M5Cardputer.Display.width() / 2;
+      int displayH = M5Cardputer.Display.height() / 2;
+       M5Cardputer.Display.clear();
+      M5Cardputer.Speaker.tone(2000, 500);
+      M5Cardputer.Display.drawString(String(IrReceiver.decodedIRData.command),  displayW, displayH);
+      delay(500);
+    }
 
     if(currentOption == 1 && selectedMenu) {
       irSender();
