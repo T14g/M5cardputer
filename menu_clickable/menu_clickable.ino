@@ -25,6 +25,7 @@ SemaphoreHandle_t sdcardSemaphore;
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 #include <IRremote.hpp>  
+#include <HTTPClient.h>
 
 const char* ssid = "SSID";
 const char* password = "PW";
@@ -199,6 +200,13 @@ void serveStaticFile(const char* urlPath, const char* filePath, const char* file
       
 
     });
+}
+
+void getDollarValues() {
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(250);
+    }
 }
 
 void serverMode() {
