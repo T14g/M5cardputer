@@ -207,6 +207,26 @@ void getDollarValues() {
     while (WiFi.status() != WL_CONNECTED) {
       delay(250);
     }
+
+    // Perform HTTP GET request
+    HTTPClient http;
+    String url = "https://v6.exchangerate-api.com/v6/API-KEY/latest/USD";
+    http.begin(url);
+
+  int httpResponseCode = http.GET();
+
+  if (httpResponseCode > 0) {
+    Serial.print("HTTP Response code: ");
+    Serial.println(httpResponseCode);
+
+    String payload = http.getString();
+    Serial.println("Response payload: " + payload);
+  } else {
+    Serial.print("HTTP Request failed with error code: ");
+    Serial.println(httpResponseCode);
+  }
+
+  http.end();
 }
 
 void serverMode() {
@@ -223,39 +243,10 @@ void serverMode() {
       M5Cardputer.Display.print("Server at:");
       M5Cardputer.Display.print( WiFi.localIP());
     }
-    // server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    //   File file = SD.open("/html-2/index.html");
-    //   if (file) {
-    //     M5Cardputer.Display.print("Sending HTML File!");
-    //     request->send(SD, "/html-2/index.html", "text/html");
-    //     file.close();
-    //   }else{
-    //     M5Cardputer.Display.print("Error to show HTML file");
-    //   }
-    // });
 
     serveStaticFile("/", "/html-2/index.html", "text/html");
     serveStaticFile("/dist/css/bootstrap.min.css", "/html-2/dist/css/bootstrap.min.css", "text/css");
     serveStaticFile("/images/1.jpg", "/html-2/images/1.jpg", "image");
-    // server.on("/dist/css/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request){
-    //   // Replace "your_css_file_path" with the actual path on your SD card
-    //   File file = SD.open("/html-2/dist/css/bootstrap.min.css");
-    //   if(file) {
-    //       request->send(SD, "/html-2/dist/css/bootstrap.min.css", "text/css");
-    //   }else{
-    //     M5Cardputer.Display.print("Error to show CSS file");
-    //   }
-    // });
-
-    // server.on("/images/1.jpg", HTTP_GET, [](AsyncWebServerRequest *request){
-    //   // Replace "your_css_file_path" with the actual path on your SD card
-    //   File file = SD.open("/html-2/images/1.jpg");
-    //   if(file) {
-    //       request->send(SD, "/html-2/images/1.jpg", "image");
-    //   }else{
-    //     M5Cardputer.Display.print("Error to show Img file");
-    //   }
-    // });
 
     server.on("/test", HTTP_POST, [](AsyncWebServerRequest *request){
       String message = request->arg("Count");
@@ -300,6 +291,7 @@ void serverMode() {
 }
 
 void setup() {
+    // Serial.begin(9600);
     auto cfg = M5.config();
     M5Cardputer.begin(cfg);
 
@@ -311,6 +303,7 @@ void setup() {
     IrReceiver.begin(1, ENABLE_LED_FEEDBACK);
 
     drawMenu();
+    // getDollarValues();
 }
 
 void loop() {
