@@ -90,7 +90,7 @@ void irSender() {
       irCommand = 0;
       delay(500);
     }else if(irCommand == 2) {
-      IrSender.sendNEC(0x0, 0x9, 0);
+      IrSender.sendNEC(0x0, getHexWithPrefix(9), 0);
       irCommand = 0;
       delay(500);
     }else if(irCommand == 3) {
@@ -310,28 +310,11 @@ void setup() {
     // getDollarValues();
 }
 
-uint16_t formatNumberToUint16(int number) {
-  // Create a buffer to store the formatted string
-  char buffer[10];
+uint8_t getHexWithPrefix(int number) {
 
-  // Format the string as "0x%04X" and store it in the buffer
-  snprintf(buffer, sizeof(buffer), "0x%04X", number);
+  String hexString = "0x" + String(number, HEX);
+  return strtoul(hexString.c_str(), nullptr, 0);
 
-  // Convert the formatted string manually to uint16_t
-  uint16_t formattedNumber = 0;
-  for (int i = 2; i < 6; ++i) {
-    char hexDigit = buffer[i];
-    formattedNumber <<= 4;
-    if (hexDigit >= '0' && hexDigit <= '9') {
-      formattedNumber |= (hexDigit - '0');
-    } else if (hexDigit >= 'A' && hexDigit <= 'F') {
-      formattedNumber |= (hexDigit - 'A' + 10);
-    } else if (hexDigit >= 'a' && hexDigit <= 'f') {
-      formattedNumber |= (hexDigit - 'a' + 10);
-    }
-  }
-
-  return formattedNumber;
 }
 
 void loop() {
@@ -346,7 +329,7 @@ void loop() {
 
       ir_ready = true;
       ir_address = IrReceiver.decodedIRData.address;
-      ir_command = IrReceiver.decodedIRData.address;
+      ir_command = IrReceiver.decodedIRData.command;
       delay(500);
     }
 
@@ -357,7 +340,7 @@ void loop() {
         M5Cardputer.Display.clear();
         M5Cardputer.Speaker.tone(2000, 500);
         M5Cardputer.Display.drawString("Sending IR in 5s!",  displayW, displayH);
-        IrSender.sendNEC(formatNumberToUint16(ir_address), formatNumberToUint16(ir_command), 0);
+        IrSender.sendNEC(getHexWithPrefix(ir_address), getHexWithPrefix(ir_command), 0);
         delay(500);
         ir_ready = false;
     }
