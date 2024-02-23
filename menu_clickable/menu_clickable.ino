@@ -39,7 +39,7 @@ bool selectedMenu = false;
 
 uint16_t ir_address = 0;
 uint16_t ir_command = 0;
-bool ir_ready = false;
+bool ready_send_ir = false;
 
 void irSender() {
     int displayW = M5Cardputer.Display.width() / 2;
@@ -127,9 +127,49 @@ void irSender() {
     delay(500);
 }
 
+void irReceiveSend() {
+    int displayW = M5Cardputer.Display.width() / 2;
+    int displayH = M5Cardputer.Display.height() / 2 - 25;
+    M5Cardputer.Display.clear();
+    
+
+    if (IrReceiver.decode()) {
+      ir_address = IrReceiver.decodedIRData.address;
+      ir_command = IrReceiver.decodedIRData.command;
+      ready_send_ir = true;
+      IrReceiver.resume();
+      delay(500);
+    }else if(!ready_send_ir) {
+      M5Cardputer.Display.drawString("IR RECEIVER / SENDER",  0, displayH);
+    }
+
+    if(ready_send_ir) {
+      M5Cardputer.update();
+      M5Cardputer.Display.clear();
+
+      M5Cardputer.Display.drawString("PRESS KEY UP",  0, displayH);
+      M5Cardputer.Display.drawString("TO SEND",  0, displayH + 20);
+      M5Cardputer.Display.drawString("Addres: 0x" + String(getHexWithPrefix(ir_address)),  0, displayH + 40);
+      M5Cardputer.Display.drawString("Command 0x" + String(getHexWithPrefix(ir_command)),  0, displayH + 55);
+      
+      if (M5Cardputer.Keyboard.isChange()) {
+        if (M5Cardputer.Keyboard.isKeyPressed(';')) {
+          M5Cardputer.Display.clear();
+          M5Cardputer.Display.drawString("Sending IR",  displayW - 60, displayH);
+          IrSender.sendNEC(getHexWithPrefix(ir_address), getHexWithPrefix(ir_command), 0);
+          delay(500);
+          ready_send_ir = false;
+        }
+      }
+        // ready_send_ir = false;
+    }
+    
+     
+}
+
 void drawMenuOptions() {
     M5Cardputer.Display.drawString("IR",0 ,0);
-    M5Cardputer.Display.drawString("Ir menu 2",0 ,22);
+    M5Cardputer.Display.drawString("IR Receive/Send",0 ,22);
     M5Cardputer.Display.drawString("BLUETOOTH",0 ,42);
     M5Cardputer.Display.drawString("Web Server",0 ,62);
     M5Cardputer.Display.drawString("SD Card",0 ,82);
@@ -318,40 +358,13 @@ uint8_t getHexWithPrefix(int number) {
 }
 
 void loop() {
-
-    if (IrReceiver.decode()) {
-      IrReceiver.resume();
-      int displayW = M5Cardputer.Display.width() / 2;
-      int displayH = M5Cardputer.Display.height() / 2;
-      M5Cardputer.Display.clear();
-      M5Cardputer.Speaker.tone(2000, 500);
-      M5Cardputer.Display.drawString("IR copied!",  displayW, displayH);
-
-      ir_ready = true;
-      ir_address = IrReceiver.decodedIRData.address;
-      ir_command = IrReceiver.decodedIRData.command;
-      delay(500);
-    }
-
-    if(ir_ready) {
-        delay(5000);
-        int displayW = M5Cardputer.Display.width() / 2;
-        int displayH = M5Cardputer.Display.height() / 2;
-        M5Cardputer.Display.clear();
-        M5Cardputer.Speaker.tone(2000, 500);
-        M5Cardputer.Display.drawString("Sending IR in 5s!",  displayW, displayH);
-        IrSender.sendNEC(getHexWithPrefix(ir_address), getHexWithPrefix(ir_command), 0);
-        delay(500);
-        ir_ready = false;
-    }
-
     if(currentOption == 1 && selectedMenu) {
       irSender();
     }else if(currentOption == 4 && selectedMenu) {
       serverMode();
     }else if(currentOption == 2 && selectedMenu) {
-      drawIrMenu();
-      selectedMenu = false;
+      irReceiveSend();
+      // selectedMenu = false;
     }else if(currentOption == 5 && selectedMenu) {
       startSDcard();
       selectedMenu = false;
