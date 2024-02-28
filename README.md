@@ -1,16 +1,13 @@
 # M5Stack Cardputer
-M5Stack Cardputer exempless
+Here are some of my M5Stack Cardputer codes
 
--Hello World
+# What i have done:
+-Made an hello world
 
--Key pressings
+-Made some basic key pressing detection exemple
 
--Simple IR sending
+-An Menu with functionalities like: Sending IR commands, Receiving and sending Ir commands, start a webserver, load files from SD card on webserver
 
 
-# Ideas:
-
--Make wifi portal work
--Make multilevel menu
--
+![alt text](https://github.com/T14g/M5cardputer/blob/main/images/1.jpeg?raw=true)
 
