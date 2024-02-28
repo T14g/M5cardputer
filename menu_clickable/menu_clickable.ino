@@ -385,7 +385,7 @@ void setup() {
     IrReceiver.begin(1, ENABLE_LED_FEEDBACK);
 
     drawMenu();
-    getDollarValues();
+    // getDollarValues();
 }
 
 uint8_t getHexWithPrefix(int number) {
