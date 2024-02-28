@@ -27,6 +27,7 @@ SemaphoreHandle_t sdcardSemaphore;
 #include <IRremote.hpp>  
 #include <HTTPClient.h>
 
+
 const char* ssid = "SSID";
 const char* password = "PW";
 
@@ -173,6 +174,7 @@ void drawMenuOptions() {
     M5Cardputer.Display.drawString("BLUETOOTH",0 ,42);
     M5Cardputer.Display.drawString("Web Server",0 ,62);
     M5Cardputer.Display.drawString("SD Card",0 ,82);
+    M5Cardputer.Display.drawString("E. Crow RF",0 ,102);
 }
 
 void drawIrMenu() {
@@ -200,6 +202,42 @@ void startSDcard() {
     M5Cardputer.Display.print("Fail to load SD");
   }
 #endif
+}
+
+void connectCrow() {
+  const char* ssid = "ECRF";
+  const char* password = "123456789";
+
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(250);
+    M5Cardputer.Display.clear();
+    M5Cardputer.Display.drawString("Connecting to crow...", 0, 0);
+  }
+
+  M5Cardputer.Display.clear();
+  M5Cardputer.Display.drawString("CROW IS ON!", 0, 0);
+
+  HTTPClient http;
+  String url = "http://192.168.4.1/APPLY?P1=SCANNER&P2=true";
+  http.begin(url);
+
+  int httpResponseCode = http.GET();
+
+  if (httpResponseCode == 200) {
+    M5Cardputer.Display.clear();
+    M5Cardputer.Display.drawString("CROW SCANNER ON!", 0, 0);
+  } else {
+    M5Cardputer.Display.clear();
+    // M5Cardputer.Display.clear();
+    // M5Cardputer.Display.print("Error");
+    // M5Cardputer.Display.drawString(httpResponseCode, 0 , 0);
+    M5Cardputer.Display.drawString("ERROR", 0 , 0);
+    // M5Cardputer.Display.print(httpResponseCode);
+  }
+
+  http.end();
+    
 }
 
 void drawMenu() {
@@ -254,20 +292,20 @@ void getDollarValues() {
 
     // Perform HTTP GET request
     HTTPClient http;
-    String url = "https://v6.exchangerate-api.com/v6/API-KEY/latest/USD";
+    String url = "https://v6.exchangerate-api.com/v6/KEY/latest/USD";
     http.begin(url);
 
   int httpResponseCode = http.GET();
 
   if (httpResponseCode > 0) {
-    Serial.print("HTTP Response code: ");
-    Serial.println(httpResponseCode);
 
-    String payload = http.getString();
-    Serial.println("Response payload: " + payload);
   } else {
-    Serial.print("HTTP Request failed with error code: ");
-    Serial.println(httpResponseCode);
+    M5Cardputer.Display.clear();
+    // M5Cardputer.Display.clear();
+    // M5Cardputer.Display.print("Error");
+    // M5Cardputer.Display.drawString(httpResponseCode, 0 , 0);
+    M5Cardputer.Display.drawString("ERROR", 0 , 0);
+    // M5Cardputer.Display.print(httpResponseCode);
   }
 
   http.end();
@@ -347,7 +385,7 @@ void setup() {
     IrReceiver.begin(1, ENABLE_LED_FEEDBACK);
 
     drawMenu();
-    // getDollarValues();
+    getDollarValues();
 }
 
 uint8_t getHexWithPrefix(int number) {
@@ -368,7 +406,11 @@ void loop() {
     }else if(currentOption == 5 && selectedMenu) {
       startSDcard();
       selectedMenu = false;
-    }else {
+    }else if(currentOption == 6 && selectedMenu) {
+      connectCrow();
+      selectedMenu = false;
+    }
+    else {
       M5Cardputer.update();
       if (M5Cardputer.Keyboard.isChange()) {
           if (M5Cardputer.Keyboard.isKeyPressed(';')) {
@@ -378,7 +420,7 @@ void loop() {
               drawMenu();
             }
           }else if (M5Cardputer.Keyboard.isKeyPressed('.')) {
-              if(currentOption < 5) {
+              if(currentOption < 6) {
               currentOption++;
               menuPosition += 22;
               drawMenu();
