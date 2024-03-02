@@ -41,6 +41,7 @@ bool selectedMenu = false;
 uint16_t ir_address = 0;
 uint16_t ir_command = 0;
 bool ready_send_ir = false;
+bool updateScreen = true;
 
 void irSender() {
     int displayW = M5Cardputer.Display.width() / 2;
@@ -171,7 +172,7 @@ void irReceiveSend() {
 void drawMenuOptions() {
     M5Cardputer.Display.drawString("IR",0 ,0);
     M5Cardputer.Display.drawString("IR Receive/Send",0 ,22);
-    M5Cardputer.Display.drawString("BLUETOOTH",0 ,42);
+    M5Cardputer.Display.drawString("Counter",0 ,42);
     M5Cardputer.Display.drawString("Web Server",0 ,62);
     M5Cardputer.Display.drawString("SD Card",0 ,82);
     M5Cardputer.Display.drawString("E. Crow RF",0 ,102);
@@ -396,12 +397,38 @@ uint8_t getHexWithPrefix(int number) {
 
 }
 
-void loop() {
-    int btnState = digitalRead(2);
+void startCounter() {
+  int btnState = digitalRead(2);
+  M5Cardputer.Display.setTextSize(2);
 
-    if (btnState == HIGH) { 
-        M5Cardputer.Speaker.tone(2000, 500);
-    }
+  if(updateScreen) {
+    M5Cardputer.Display.clear();
+    M5Cardputer.Display.drawString("Counter Mode",  1, 1);
+    updateScreen = false;
+  }
+
+  if (btnState == HIGH) { 
+
+      int count = 0;
+      M5Cardputer.Display.setTextSize(4);
+      while(count <= 60) {
+        M5Cardputer.Display.clear();
+        M5Cardputer.Display.drawString(String(count),  100, 50);
+        count++;
+        delay(1000);
+      }
+
+      M5Cardputer.Speaker.tone(2000, 500);
+      delay(1000);
+      M5Cardputer.Speaker.tone(2000, 500);
+      delay(1000);
+      M5Cardputer.Speaker.tone(2000, 500);
+      updateScreen = true;
+  }
+}
+
+void loop() {
+   
 
     if(currentOption == 1 && selectedMenu) {
       irSender();
@@ -409,6 +436,9 @@ void loop() {
       serverMode();
     }else if(currentOption == 2 && selectedMenu) {
       irReceiveSend();
+      // selectedMenu = false;
+    }else if(currentOption == 3 && selectedMenu) {
+      startCounter();
       // selectedMenu = false;
     }else if(currentOption == 5 && selectedMenu) {
       startSDcard();
