@@ -383,6 +383,7 @@ void setup() {
     IrSender.begin(DISABLE_LED_FEEDBACK);  // Start with IR_SEND_PIN as send pin
     IrSender.setSendPin(IR_TX_PIN);
     IrReceiver.begin(1, ENABLE_LED_FEEDBACK);
+    pinMode(2, INPUT_PULLUP);
 
     drawMenu();
     // getDollarValues();
@@ -396,6 +397,12 @@ uint8_t getHexWithPrefix(int number) {
 }
 
 void loop() {
+    int btnState = digitalRead(2);
+
+    if (btnState == HIGH) { 
+        M5Cardputer.Speaker.tone(2000, 500);
+    }
+
     if(currentOption == 1 && selectedMenu) {
       irSender();
     }else if(currentOption == 4 && selectedMenu) {
