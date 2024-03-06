@@ -1,4 +1,4 @@
-# M5Stack Cardputer
+# M5 Stack Cardputer
 Here are some of my M5Stack Cardputer codes
 
 # What i have done:
