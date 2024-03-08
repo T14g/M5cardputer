@@ -12,21 +12,17 @@
 #include <FS.h>
 #include <SD.h>
 #include <SPI.h>
-#endif
-
-bool sdcardMounted = false;
-
-#if defined(HAS_SDCARD)
 SPIClass* sdcardSPI = NULL;
 SemaphoreHandle_t sdcardSemaphore;
 #endif
+
+bool sdcardMounted = false;
 
 #include "M5Cardputer.h"
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 #include <IRremote.hpp>  
 #include <HTTPClient.h>
-
 
 const char* ssid = "SSID";
 const char* password = "PW";
@@ -35,8 +31,11 @@ AsyncWebServer server(80);
 
 uint8_t  menuPosition = 0;
 uint8_t  currentOption = 1;
+uint8_t  menu_offset = 0;
 uint8_t  irCommand = 0;
 bool selectedMenu = false;
+
+char menu_options[][20] = {"IR", "IR Receive/Send", "Counter", "Web Server", "SD Card", "E. Crow RF"};
 
 uint16_t ir_address = 0;
 uint16_t ir_command = 0;
@@ -169,13 +168,12 @@ void irReceiveSend() {
      
 }
 
-void drawMenuOptions() {
-    M5Cardputer.Display.drawString("IR",0 ,0);
-    M5Cardputer.Display.drawString("IR Receive/Send",0 ,22);
-    M5Cardputer.Display.drawString("Counter",0 ,42);
-    M5Cardputer.Display.drawString("Web Server",0 ,62);
-    M5Cardputer.Display.drawString("SD Card",0 ,82);
-    M5Cardputer.Display.drawString("E. Crow RF",0 ,102);
+void drawMenuOptions(const uint8_t offset) {
+    uint8_t menu_space = 0;
+    for(uint8_t i = 0; i < 6 ; i++) {
+      M5Cardputer.Display.drawString(menu_options[i + offset],0 , menu_space);
+      menu_space += 20;
+    }
 }
 
 void drawIrMenu() {
@@ -244,7 +242,7 @@ void connectCrow() {
 void drawMenu() {
   M5Cardputer.Display.clear();
   M5Cardputer.Display.fillRect(0, menuPosition - (currentOption + 1), 240, 22, 0x7E0); 
-  drawMenuOptions();
+  drawMenuOptions(0);
 }
 
 void createFileSD() {
@@ -428,8 +426,6 @@ void startCounter() {
 }
 
 void loop() {
-   
-
     if(currentOption == 1 && selectedMenu) {
       irSender();
     }else if(currentOption == 4 && selectedMenu) {
