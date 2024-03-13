@@ -43,8 +43,8 @@ bool ready_send_ir = false;
 bool updateScreen = true;
 
 void irSender() {
-    int displayW = M5Cardputer.Display.width() / 2;
-    int displayH = M5Cardputer.Display.height() / 2;
+    const int displayW = M5Cardputer.Display.width() / 2;
+    const int displayH = M5Cardputer.Display.height() / 2;
 
     M5Cardputer.update();
     M5Cardputer.Display.clear();
@@ -129,8 +129,8 @@ void irSender() {
 }
 
 void irReceiveSend() {
-    int displayW = M5Cardputer.Display.width() / 2;
-    int displayH = M5Cardputer.Display.height() / 2 - 25;
+    const int displayW = M5Cardputer.Display.width() / 2;
+    const int displayH = M5Cardputer.Display.height() / 2 - 25;
     M5Cardputer.Display.clear();
     
 
@@ -426,24 +426,25 @@ void startCounter() {
 }
 
 void loop() {
-    if(currentOption == 1 && selectedMenu) {
-      irSender();
-    }else if(currentOption == 4 && selectedMenu) {
-      serverMode();
-    }else if(currentOption == 2 && selectedMenu) {
-      irReceiveSend();
-      // selectedMenu = false;
-    }else if(currentOption == 3 && selectedMenu) {
-      startCounter();
-      // selectedMenu = false;
-    }else if(currentOption == 5 && selectedMenu) {
-      startSDcard();
-      selectedMenu = false;
-    }else if(currentOption == 6 && selectedMenu) {
-      connectCrow();
-      selectedMenu = false;
-    }
-    else {
+    if(selectedMenu) {
+      if(currentOption == 1) {
+        irSender();
+      }else if(currentOption == 4) {
+        serverMode();
+      }else if(currentOption == 2) {
+        irReceiveSend();
+        // selectedMenu = false;
+      }else if(currentOption == 3) {
+        startCounter();
+        // selectedMenu = false;
+      }else if(currentOption == 5) {
+        startSDcard();
+        selectedMenu = false;
+      }else if(currentOption == 6) {
+        connectCrow();
+        selectedMenu = false;
+      }
+    }else {
       M5Cardputer.update();
       if (M5Cardputer.Keyboard.isChange()) {
           if (M5Cardputer.Keyboard.isKeyPressed(';')) {
