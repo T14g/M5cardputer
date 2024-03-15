@@ -42,6 +42,13 @@ uint16_t ir_command = 0;
 bool ready_send_ir = false;
 bool updateScreen = true;
 
+void connectToNetWork(const char* ssid, const char* pw) {
+  WiFi.begin(ssid, pw);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(250);
+  }
+}
+
 void irSender() {
     const int displayW = M5Cardputer.Display.width() / 2;
     const int displayH = M5Cardputer.Display.height() / 2;
@@ -207,12 +214,7 @@ void connectCrow() {
   const char* ssid = "ECRF";
   const char* password = "123456789";
 
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(250);
-    M5Cardputer.Display.clear();
-    M5Cardputer.Display.drawString("Connecting to crow...", 0, 0);
-  }
+  connectToNetWork(ssid, password);
 
   M5Cardputer.Display.clear();
   M5Cardputer.Display.drawString("CROW IS ON!", 0, 0);
@@ -284,10 +286,7 @@ void serveStaticFile(const char* urlPath, const char* filePath, const char* file
 }
 
 void getDollarValues() {
-    WiFi.begin(ssid, password);
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(250);
-    }
+    connectToNetWork(ssid, password);
 
     // Perform HTTP GET request
     HTTPClient http;
@@ -313,13 +312,8 @@ void getDollarValues() {
 void serverMode() {
     startSDcard();
     createFileSD();
-
     M5Cardputer.Display.clear();
-    WiFi.begin(ssid, password);
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(250);
-    }
-
+    connectToNetWork(ssid, password);
     if(WiFi.status() == WL_CONNECTED) {
       M5Cardputer.Display.print("Server at:");
       M5Cardputer.Display.print( WiFi.localIP());
