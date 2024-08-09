@@ -23,10 +23,12 @@ bool sdcardMounted = false;
 #include <ESPAsyncWebServer.h>
 #include <IRremote.hpp>  
 #include <HTTPClient.h>
+#include <ArduinoJson.h>
 
-const char* ssid = "SSID";
-const char* password = "PW";
+const char* ssid = "ssid";
+const char* password = "pw";
 
+1GN4fnY34PZyJdAcSvr4aq4CJ5cYXgpjFU
 AsyncWebServer server(80);
 
 uint8_t  menuPosition = 0;
@@ -35,24 +37,30 @@ uint8_t  menu_offset = 0;
 uint8_t  irCommand = 0;
 bool selectedMenu = false;
 
-char menu_options[][20] = {"IR", "IR Receive/Send", "Counter", "Web Server", "SD Card", "E. Crow RF"};
+char menu_options[][20] = {"IR", "IR Receive/Send", "Counter", "Web Server", "SD Card"};
 
 uint16_t ir_address = 0;
 uint16_t ir_command = 0;
 bool ready_send_ir = false;
 bool updateScreen = true;
 
-void connectToNetWork(const char* ssid, const char* pw) {
+void connectToNetWork(const char* ssid, const char* pw) { 
   WiFi.begin(ssid, pw);
   while (WiFi.status() != WL_CONNECTED) {
     delay(250);
   }
 }
 
+uint8_t getHexWithPrefix(int number) {
+
+  String hexString = "0x" + String(number, HEX);
+  return strtoul(hexString.c_str(), nullptr, 0);
+
+}
+
 void irSender() {
     const int displayW = M5Cardputer.Display.width() / 2;
     const int displayH = M5Cardputer.Display.height() / 2;
-
     M5Cardputer.update();
     M5Cardputer.Display.clear();
 
@@ -290,23 +298,51 @@ void getDollarValues() {
 
     // Perform HTTP GET request
     HTTPClient http;
-    String url = "https://v6.exchangerate-api.com/v6/KEY/latest/USD";
-    http.begin(url);
+  //   String url = "https://v6.exchangerate-api.com/v6/your-keys/latest/USD";
+  //   http.begin(url);
 
-  int httpResponseCode = http.GET();
+  // int httpResponseCode = http.GET();
 
-  if (httpResponseCode > 0) {
+  //  int httpResponseCode = http.GET(); // Make the request
 
-  } else {
-    M5Cardputer.Display.clear();
-    // M5Cardputer.Display.clear();
-    // M5Cardputer.Display.print("Error");
-    // M5Cardputer.Display.drawString(httpResponseCode, 0 , 0);
-    M5Cardputer.Display.drawString("ERROR", 0 , 0);
-    // M5Cardputer.Display.print(httpResponseCode);
-  }
+    if (httpResponseCode > 0) { // Check for the returning code
+      String payload = http.getString();
+
+      // Allocate the JSON document
+      // Use arduinojson.org/assistant to compute the capacity.
+      const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(170) + 2200;
+      DynamicJsonDocument doc(capacity);
+
+      // Parse the JSON payload
+      DeserializationError error = deserializeJson(doc, payload);
+
+      if (!error) {
+        // Extract the BRL value
+        float brl = doc["conversion_rates"]["BRL"];
+            M5Cardputer.Display.clear();
+    M5Cardputer.Display.print(brl);
+      } else {
+           M5Cardputer.Display.clear();
+    M5Cardputer.Display.print("Error2");
+      }
+
+    }
 
   http.end();
+  delay(10000); // Send a request every 10 seconds
+
+  // if (httpResponseCode > 0) {
+  //   M5Cardputer.Display.clear();
+  // } else {
+  //   M5Cardputer.Display.clear();
+  //   // M5Cardputer.Display.clear();
+  //   // M5Cardputer.Display.print("Error");
+  //   // M5Cardputer.Display.drawString(httpResponseCode, 0 , 0);
+  //   M5Cardputer.Display.drawString("ERROR", 0 , 0);
+  //   // M5Cardputer.Display.print(httpResponseCode);
+  // }
+
+ 
 }
 
 void serverMode() {
@@ -382,12 +418,7 @@ void setup() {
     // getDollarValues();
 }
 
-uint8_t getHexWithPrefix(int number) {
 
-  String hexString = "0x" + String(number, HEX);
-  return strtoul(hexString.c_str(), nullptr, 0);
-
-}
 
 void startCounter() {
   int btnState = digitalRead(2);
@@ -434,7 +465,7 @@ void loop() {
       }else if(currentOption == 5) {
         startSDcard();
         selectedMenu = false;
-      }else if(currentOption == 6) {
+      }else if(1==3 ) {
         connectCrow();
         selectedMenu = false;
       }
@@ -448,7 +479,7 @@ void loop() {
               drawMenu();
             }
           }else if (M5Cardputer.Keyboard.isKeyPressed('.')) {
-              if(currentOption < 6) {
+              if(currentOption < 5) {
               currentOption++;
               menuPosition += 22;
               drawMenu();
